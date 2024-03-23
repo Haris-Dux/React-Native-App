@@ -39,18 +39,16 @@ app.use(session({
 
 app.use("/api/users",userRouter);
 
-const db = mongoose
-.connect(process.env.MONGODB_URI);
-db.then(()=>{
-    const client = mongoose.connection.getClient();
-    const sessionsCollection = client.db().collection("sessions").find({})
-    // console.log(sessionsCollection);
+ mongoose
+.connect(process.env.MONGODB_URI)
+.then( ()=>{   
     console.log("Database Connected");
     app.listen(process.env.PORT,console.log(`Server is running on http://localhost:${process.env.PORT}`))
 })
 .catch((error)=>{
     console.log(error)
 });
+export const client = mongoose.connection.getClient();
 
-// export {client}
+
 

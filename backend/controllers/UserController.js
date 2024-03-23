@@ -2,18 +2,18 @@ import { User } from "../models/UsersModel.js";
 import bcrypt from "bcrypt";
 import { generateUniqueAdminId } from "../utils/GenerateId.js ";
 import mongoose from "mongoose";
-// import { client } from "../index.js";
+import { client } from "../index.js";
 
 function setMongoose() {
-    return mongoose.set("toJSON", {
-      virtuals: true,
-      transform: (doc, returnValue) => {
-        delete returnValue._id;
-        delete returnValue.__v;
-      },
-    });
-  }
-
+  return mongoose.set("toJSON", {
+    virtuals: true,
+    transform: (doc, returnValue) => {
+      delete returnValue._id;
+      delete returnValue.__v;
+      delete returnValue.password;
+    },
+  });
+}
 
 export const signUp = async (req, res, next) => {
   try {
@@ -99,28 +99,54 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-export const getAdmins = async (req, res) => {
-    try {
-        const admins = await User.find({
-            role: "admin",
-        })
-        setMongoose();
-        res.status(200).json(admins);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+export const getAdmins = async (req, res, next) => {
+  try {
+    const admins = await User.find({
+      role: "admin",
+    });
+    setMongoose();
+    res.status(200).json(admins);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const getActiveSessions = async (req, res, next) => {
   try {
-  
-    const sessions = await client.getCollection('sessions').find({})
-        console.log(sessions);
-        if (!sessions) {
-            throw new Error("Failed to retrieve sessions");
-          }
-    
-     res.status(200).json(sessions);
+    const loginUserId = req.session.userId;
+    const user = await User.findById(loginUserId);
+    const sessionsCollection = await client
+      .db()
+      .collection("sessions")
+      .find({})
+      .toArray();
+    if (!sessionsCollection) {
+      throw new Error("Failed to retrieve sessions");
+    }
+    const sessionIds = sessionsCollection.map((item) => item.session.userId);
+    let sessions;
+    if (
+      user.role === "admin" ||
+      (user.role === "superAdmin" && user.fullAccess)
+    ) {
+      const activeSessions = await User.find({
+        _id: { $in: sessionIds },
+        role: { $in: "user" },
+      });
+      sessions = activeSessions;
+    } else if (
+      user.role === "admin" ||
+      (user.role === "superAdmin" && !user.fullAccess)
+    ) {
+      const activeSessions = await User.find({
+        _id: { $in: sessionIds },
+        role: { $in: "user" },
+        adminRef: {$in: user.generatedAdminId }
+      });
+      sessions = activeSessions;
+    } else throw new Error("Unautorized");
+    setMongoose();
+    res.status(200).json(sessions);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
