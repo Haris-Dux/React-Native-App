@@ -152,3 +152,18 @@ export const getActiveSessions = async (req, res, next) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const persistUserSession = async (req,res,next) => {
+  const userId = req.session.userId;
+  if (!userId) {
+    return res.status(403).send({ msg: "Please Login Again" });
+  }
+  const user = await User.findById({
+    _id: userId,
+  });
+  if (!user) {
+    res.status(404).json({ msg: "Invalid Credentials" });
+  }
+  setMongoose();
+  res.status(200).json({ login: true, user });
+}
