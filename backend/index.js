@@ -6,6 +6,9 @@ import session from "express-session";
 import mongoose from "mongoose";
 import  MongoDBStore  from "connect-mongodb-session";
 import userRouter from "./routes/UserRoutes.js";
+import { Server } from "socket.io";
+import { createServer } from "http";
+import { sendingLocationUpdatesForUser, storeUserLocation } from "./controllers/LocationController.js";
 
 const app = express();
 app.use(cookieParser());
@@ -14,10 +17,18 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cors({
   credentials:true,
   methods: ["GET", "POST", "PUT", "DELETE"],
-//   origin:['http://localhost:5173']
+  origin:"*",
 }
 ));
 
+const server = createServer(app);
+const io = new Server(server,{
+  cors:{
+    origin:"*",
+    credentials:true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  }
+});
 
 const MongoDBStoreSession = MongoDBStore(session);
 
@@ -39,15 +50,30 @@ app.use(session({
 
 app.use("/api/users",userRouter);
 
+io.on('connection', (socket) => {
+  console.log('user connected');
+
+  socket.on('location',(location) => {
+    console.log(location);
+    storeUserLocation(location)
+  });
+
+  socket.on('startLocationTracking',(userID) => {
+    sendingLocationUpdatesForUser(userID,io)
+  });
+
+});
+
  mongoose
 .connect(process.env.MONGODB_URI)
-.then( ()=>{   
+.then( () => {   
     console.log("Database Connected");
-    app.listen(process.env.PORT,console.log(`Server is running on http://localhost:${process.env.PORT}`))
+    server.listen(process.env.PORT,console.log(`Server is running on http://localhost:${process.env.PORT}`))
 })
 .catch((error)=>{
     console.log(error)
 });
+
 export const client = mongoose.connection.getClient();
 
 

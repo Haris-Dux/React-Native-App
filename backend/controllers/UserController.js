@@ -166,4 +166,4 @@ export const persistUserSession = async (req,res,next) => {
   }
   setMongoose();
   res.status(200).json({ login: true, user });
-}
+};
