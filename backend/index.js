@@ -9,6 +9,7 @@ import userRouter from "./routes/UserRoutes.js";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { sendingLocationUpdatesForUser, storeUserLocation } from "./controllers/LocationController.js";
+import { storeCallData } from "./controllers/UserCallsController.js";
 
 const app = express();
 app.use(cookieParser());
@@ -54,7 +55,7 @@ io.on('connection', (socket) => {
   console.log('user connected');
 
   socket.on('location',(location) => {
-    console.log(location);
+    
     storeUserLocation(location)
   });
 
@@ -62,8 +63,8 @@ io.on('connection', (socket) => {
     sendingLocationUpdatesForUser(userID,io)
   });
 
-  socket.on('get-callData',(msg) => {
-    socket.emit('transfer-callData',msg)
+  socket.on('get-callData',(callData) => {
+    storeCallData(callData)
   })
 
   socket.on('disconnect',() => {

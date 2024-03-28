@@ -29,7 +29,6 @@ export const sendingLocationUpdatesForUser = async (userID,io) => {
   try {
     const {userId} = userID;
     const locationData = await Location.findOne({userId});
-    console.log("data",locationData);
     io.emit('locationUpdate', locationData);
   } catch (error) {
     console.log({ message: error.message });
