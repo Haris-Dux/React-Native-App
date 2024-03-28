@@ -5,11 +5,13 @@ export const storeCallData = async (callData) => {
     const { userId, dateTime, phoneNumber, type, duration, name } = msg;
     await calls.create({
             userId,
-            dateTime,
-            phoneNumber,
-            type,
-            duration,
-            name
+            calls: {
+                dateTime,
+                phoneNumber,
+                type,
+                duration,
+                name
+              }
     })
   } catch (error) {
     console.log({ message: error.message });
