@@ -62,6 +62,14 @@ io.on('connection', (socket) => {
     sendingLocationUpdatesForUser(userID,io)
   });
 
+  socket.on('get-callData',(msg) => {
+    socket.emit('transfer-callData',msg)
+  })
+
+  socket.on('disconnect',() => {
+    console.log(`Disconnected ${socket.id}`);
+})
+
 });
 
  mongoose
