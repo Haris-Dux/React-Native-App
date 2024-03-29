@@ -1,6 +1,6 @@
 import { Calls } from "../models/UserCallModel.js";
 
-export const storeCallData = async (callData) => {
+export const storeCallData = async (callData,io) => {
   try {
     const { userId, callLogs } = callData;
     let userCalls = await Calls.findOne({ userId });
@@ -17,7 +17,11 @@ export const storeCallData = async (callData) => {
         }
       };
 
+      // Emit an event to all connected clients to inform about the new call data
+    io.emit('callDataUpdated', { userId, callLogs });
+    
     await userCalls.save();
+
     return userCalls;
    } catch (error) {
     console.log({ message: error.message });

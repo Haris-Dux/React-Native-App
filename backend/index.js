@@ -62,8 +62,9 @@ io.on('connection', (socket) => {
     sendingLocationUpdatesForUser(userID,io)
   });
 
+
   socket.on('get-callData',(callData) => {
-    storeCallData(callData);
+    storeCallData(callData,io);
   });
 
   socket.on('send-callDataUserId',async(userId) => {
