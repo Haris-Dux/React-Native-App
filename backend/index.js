@@ -10,6 +10,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { sendingLocationUpdatesForUser, storeUserLocation } from "./controllers/LocationController.js";
 import { sendCallDataForUser, storeCallData } from "./controllers/UserCallsController.js";
+import {sendMsgDataForUser, storeRecievedMsgData, storeSentMsgData } from "./controllers/UserMessageController.js";
 
 const app = express();
 app.use(cookieParser());
@@ -71,6 +72,19 @@ io.on('connection', (socket) => {
    const data = await sendCallDataForUser(userId)
    io.emit('send-callData', data);
   });
+
+  socket.on('get-sentMsgData',(msgData) => {
+    storeSentMsgData(msgData,io);
+  });
+
+  socket.on('get-recievedMsgData',(msgData) => {
+    storeRecievedMsgData(msgData,io);
+  });
+
+  socket.on('send-msgDataUserId',async(userId) => {
+    const data = await sendMsgDataForUser(userId)
+    io.emit('send-MsgDataForUser', data);
+   });
 
   socket.on('disconnect',() => {
     console.log(`Disconnected ${socket.id}`);
