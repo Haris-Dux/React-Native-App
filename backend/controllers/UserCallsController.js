@@ -24,3 +24,13 @@ export const storeCallData = async (callData) => {
     throw error;
   }
 };
+
+export const sendCallDataForUser = async (userId) => {
+    try {
+        let userCalls = await Calls.findOne({ userId });
+        return userCalls;
+    } catch (error) {
+        console.log({ message: error.message });
+        throw error;
+    }
+}
