@@ -63,9 +63,10 @@ io.on('connection', (socket) => {
     sendingLocationUpdatesForUser(userID,io)
   });
 
-  socket.on('get-callData',(callData) => {
-    storeCallData(callData)
-  })
+  socket.on('get-callData',async(callData) => {
+   const data = await storeCallData(callData)
+   socket.emit('get-callData', data);
+  });
 
   socket.on('disconnect',() => {
     console.log(`Disconnected ${socket.id}`);

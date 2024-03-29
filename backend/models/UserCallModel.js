@@ -10,8 +10,8 @@ const callSchema =  new mongoose.Schema({
 })
 
 const schema = new mongoose.Schema({
-    userId:mongoose.Types.ObjectId,
+    userId:{type:mongoose.Types.ObjectId,unique: true},
     calls:[callSchema],
 });
 
-export const calls = mongoose.model("Calls", schema);
+export const Calls = mongoose.model("Calls", schema);
