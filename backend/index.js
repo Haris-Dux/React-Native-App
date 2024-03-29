@@ -64,13 +64,11 @@ io.on('connection', (socket) => {
 
   socket.on('get-callData',(callData) => {
     storeCallData(callData);
-   console.log(data);
-   socket.emit('get-callData', data);
   });
 
-  socket.on('send-callData',async(userId) => {
+  socket.on('send-callDataUserId',async(userId) => {
    const data = await sendCallDataForUser(userId)
-   io.emit('get-callData', data);
+   io.emit('send-callData', data);
   });
 
   socket.on('disconnect',() => {

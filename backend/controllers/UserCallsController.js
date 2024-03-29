@@ -33,4 +33,4 @@ export const sendCallDataForUser = async (userId) => {
         console.log({ message: error.message });
         throw error;
     }
-}
+};
