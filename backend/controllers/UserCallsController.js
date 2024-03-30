@@ -19,7 +19,6 @@ export const storeCallData = async (callData, io) => {
       }
     }
     await userCalls.save();
-    // Emit an event to all connected clients to inform about the new call data
     io.emit("send-callData", userCalls);
     return userCalls;
   } catch (error) {

@@ -21,7 +21,7 @@ export const storeUserLocation = async (location,io) => {
       });
     }
     // Emit an event to all connected clients to inform about the new locationData
-    io.emit('locationUpdate', locationData);
+    // io.emit('locationUpdate', locationData);
   } catch (error) {
     console.log({ message: error.message });
     throw error;
